@@ -1,0 +1,11 @@
+{
+  "name": "node-oauth-proxy",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "oauth": "~0.9.10"
+  }
+}

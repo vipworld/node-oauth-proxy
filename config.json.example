@@ -1,0 +1,6 @@
+[ {
+  "name":   "factual",
+  "match":  "api.v3.factual.com",
+  "key":    "yourKey",
+  "secret": "yourSecret"
+} ]

@@ -1,0 +1,34 @@
+var http  = require('http');
+var PORT  = 8111;
+var OAuth = require('oauth').OAuth;
+var fs    = require('fs');
+var config = JSON.parse(fs.readFileSync('./config.json').toString());
+var oauths = {};
+
+config.forEach(function(c){
+  oauths[c.name] = new OAuth(null, null, c.key, c.secret, '1.0', null, 'HMAC-SHA1', null);
+});
+
+http.createServer(function (req, res){
+  console.log("request recieved: %s", req.url);
+  config.forEach(function(c){
+    if(req.url.indexOf(c.match) !== -1) {
+      if(req.method !== 'GET') res.end("only supports get");
+
+      console.log('oauth match found: %s', c.match);
+
+      oauths[c.name][req.method.toLowerCase()](req.url, null, null, function(error, data, ores) {
+        res.statusCode = ores.statusCode;
+        for (var h in ores.headers) {
+          res.setHeader(h, ores.headers[h]);
+        }
+        res.write(data);
+        res.end();
+        return;
+      });
+    } else {
+      res.statusCode = 404;
+      res.end();
+    }
+  });
+}).listen(PORT);
