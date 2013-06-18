@@ -1,7 +1,10 @@
 var http  = require('http');
 var PORT  = 8111;
-var OAuth = require('oauth').OAuth;
-var fs    = require('fs');
+var OAuth = require('oauth').OAuth
+  , fs    = require('fs')
+  , url   = require('url')
+  , minimatch = require('minimatch');
+
 var config = JSON.parse(fs.readFileSync('./config.json').toString());
 var oauths = {};
 
@@ -11,9 +14,13 @@ config.forEach(function(c){
 
 http.createServer(function (req, res){
   console.log("request recieved: %s", req.url);
+  var host = url.parse(req.url).hostname;
   config.forEach(function(c){
-    if(req.url.indexOf(c.match) !== -1) {
-      if(req.method !== 'GET') res.end("only supports get");
+    if(minimatch(host, c.match)) {
+      if(req.method !== 'GET') {
+        res.end("only supports get");
+        return;
+      }
 
       console.log('oauth match found: %s', c.match);
 
@@ -26,9 +33,8 @@ http.createServer(function (req, res){
         res.end();
         return;
       });
-    } else {
-      res.statusCode = 404;
-      res.end();
     }
   });
+  // res.statusCode = 404;
+  // res.end();
 }).listen(PORT);
